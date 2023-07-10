@@ -1,36 +1,37 @@
-pipeline {
-    agent any 
-    environment {
-        //once you sign up for Docker hub, use that user_id here
-        registry = "anishrajwani/docker-java"
-        //- update your credentials ID after creating credentials for connecting to Docker Hub
-        registryCredential = 'dockerid'
-        dockerImage = ''
-    }
-    
-   stages
+pipeline
+{
+  environment
+  {
+    registry = "anishrajwani/docker-java1"
+    registryCredential = 'dockerid'
+    dockerImage = ''
+  }
+agent any
+
+stages
+{
+  stage('Build image')
+  {
+    steps
     {
-    
-    // Building Docker images
-    stage('Building image') {
-      steps{
-        script {
-          dockerImage = docker.build registry
-        }
+      script
+      {
+          dockerImage = docker.build registry + ":$BUILD_NUMBER"
       }
     }
-    
-     // Uploading Docker images into Docker Hub
-    stage('Upload Image') {
-     steps{    
-         script {
-            docker.withRegistry( '', registryCredential ) {
+  }
+  stage('Deploy the image')
+  {
+    steps
+    {
+      script
+      {
+          docker.withRegistry( '',registryCredential )
+          {
             dockerImage.push()
-            }
-        }
+          }
       }
     }
-    } 
+  }
 }
-    
-    
+}
